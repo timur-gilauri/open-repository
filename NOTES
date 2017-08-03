@@ -1,0 +1,6 @@
+PHP
+  preg_replace_callback:
+    * This function replace matched entries using callback function, so you can use your own logic inside it;
+    * Unlike "str_replace" function, "preg_replace_callback doesn't replace pattern in whole text through each itteration again.
+    * Instead, it goes forward to next entry and replace it;
+    * Moreover, the "$matches" argument of callback function always contains all entries. 
