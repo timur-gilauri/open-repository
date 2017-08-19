@@ -29,43 +29,48 @@
  * Функция возвращает переданный в нее строку-шаблон со свойствами объекта вместо заменителей
  *
  **/
-
-
-function setTemplate(html, inputValuesObj, showEmptyProps) {
-  'use strict';
+class Templater {
   
-  let template = html,
-    inputPropertyValue,
-    emptyValueRegExp = new RegExp('\\[~[^!].+?~\\]', 'gi'),
-    inputProperty,
-    matchedProp;
+  constructor(htmlTemplate, inputValuesObj, showEmptyProperties) {
+    this.emptyValueRegExp = new RegExp('\\[~[^!].+?~\\]', 'gi');
+    this.template = htmlTemplate;
+    this.data = inputValuesObj;
+  }
   
-  /* Производим замену всех заменителей на значения из переданного объекта */
+  setTemplate(stringTemplate) {
+    this.template = stringTemplate;
+  }
   
-  for (inputProperty in inputValuesObj) {
-    if (inputValuesObj.hasOwnProperty(inputProperty)) {
-      inputPropertyValue = String(inputValuesObj[inputProperty]);
-      matchedProp = new RegExp('\\[~' + inputProperty + '+?~\\]', 'gi');
-      while (matchedProp.exec(template)) {
-        if (inputPropertyValue.length > 0) {
-          template = template.replace(matchedProp, inputPropertyValue);
-        } else {
-          if (showEmptyProps) {
-            template = template.replace(matchedProp, '[~! ' + inputProperty + ' is empty ~]');
+  compile() {
+    /* Производим замену всех заменителей на значения из переданного объекта */
+    
+    for (property in this.data) {
+      if (this.data.hasOwnProperty(property)) {
+        
+        let inputPropertyValue = String(this.data[property]);
+        propertyRegExp = new RegExp('\\[~' + property + '+?~\\]', 'gi');
+        
+        while (propertyRegExp.exec(this.template)) {
+          if (inputPropertyValue.length > 0) {
+            this.template = this.template.replace(propertyRegExp, inputPropertyValue);
           } else {
-            template = template.replace(matchedProp, '');
+            if (showEmptyProps) {
+              this.template = this.template.replace(propertyRegExp, '[~! ' + property + ' is empty ~]');
+            } else {
+              this.template = this.template.replace(propertyRegExp, '');
+            }
           }
         }
       }
     }
+    
+    /* Дополнительная проверка на оставшиеся заменители, если значение не переданно в параметрах, заменитель меняется на [~] */
+    
+    while (emptyValueRegExp.exec(this.template)) {
+      this.template = this.template.replace(emptyValueRegExp, '[~]');
+    }
+    return this.template.valueOf();
   }
-  
-  /* Дополнительная проверка на оставшиеся заменители, если значение не переданно в параметрах, заменитель меняется на [~] */
-  
-  while (emptyValueRegExp.exec(template)) {
-    template = template.replace(emptyValueRegExp, '[~]');
-  }
-  return template.valueOf();
 }
 
 
